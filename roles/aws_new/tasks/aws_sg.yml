@@ -1,0 +1,41 @@
+---
+
+- name: Security Group for NAT Instance
+  ec2_group:
+    name: "{{ nat_sg_name }}"
+    description: security group for NAT instance
+    vpc_id: "{{ vpc.vpc_id }}"
+    region: "{{ aws_region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+    state: present
+  register: sg
+
+- name: Security Group for App Instance
+  ec2_group:
+    name: "{{ app_sg_name }}"
+    description: security group for application instance
+    vpc_id: "{{ vpc.vpc_id }}"
+    region: "{{ aws_region }}"
+    rules:
+      - proto: all
+        ports: -1
+        group_name: "{{ nat_sg_name }}"
+    state: present
+
+- name: Updating NAT SG
+  ec2_group:
+    name: "{{ nat_sg_name }}"
+    description: security group for NAT instance
+    rules:
+      - proto: all
+        from_port: all
+        group_name: "{{ app_sg_name }}"
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+    state: present

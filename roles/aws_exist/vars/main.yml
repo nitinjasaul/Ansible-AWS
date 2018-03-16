@@ -1,0 +1,40 @@
+---
+
+# Default Variables
+
+aws_region: "us-east-1"		# AWS region where user want to launch instances
+key_name: "id_rsa"		# Existing key name which is already there on AWS
+ENVIRONMENT: "Stage"		# Environment for tagging i.e Production or Stage
+
+# Array to store private ips to be written in the hosts file
+
+instance_ip: []
+
+##### Variable for NAT Instance #####
+
+image_nat: "ami-01623d7b"	# AWS NAT Image or AMI from which user wants to create the NAT Instance
+instance_type_nat: "t2.micro"   # Instance type for NAT Instance
+nat_sg_name: "NAT_SG"		# Security Group for NAT Instance
+count_instance_nat: "1"		# Put value 0 if user don't want to create the NAT Instance
+subnet_ids: "subnet-61c9c505"   # Public Subnet ID in which NAT Instance must be created
+
+##### Variable for Application Instance #####
+
+image_app: "ami-97785bed"	# AWS Instance Image or AMI from which user wants to create the Instance for Applications
+instance_type_app: "t2.micro"	# Instance type for Application Instance
+app_sg_name: "APP_SG"		# Security Group for Application Instance	
+count_instance_app: "1"		# Number of Instances for Application
+volume_size_app: "8"		# Primary volume size for the Application Instance
+default_volume_type_app: "standard"	# Primary volume type for the Application Instance i.e "standard" or "gp2"
+second_volume_size_app: "50"	# Secondary volume size for the Application Instance
+second_volume_type_app: "standard"	# Secondary volume type for the Application Instance i.e "standard" or "gp2"
+subnet_ids_pvt: [ "subnet-96e9cab9", "subnet-856f90cf" ]	# Private Subnets in which user wants to launch the instances..... For single subnet: "subnet_id"
+App_Instance_Name: "Test-Instance"	# Desired name for the Application Instances
+
+
+
+# Note: 
+
+# 1. Put 0 for if you don't want to create NAT Instance i.e count_instance_nat: "0"  OR  Put 1 to create NAT Instance i.e count_instance_nat: "1"
+# 2. Leave secondary volume type null if you don't want to add the secondary volume i.e second_volume_type_app: ""
+

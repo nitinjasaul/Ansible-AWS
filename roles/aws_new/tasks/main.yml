@@ -1,0 +1,23 @@
+---
+
+- name: Creating New VPC on AWS
+  import_tasks: aws_vpc_subnets.yml
+
+- name: Creating KeyPair
+  import_tasks: aws_keypair.yml
+
+#- name: Creating Security Group
+#  import_tasks: aws_sg.yml
+
+#- name: Creating Instances
+#  import_tasks: aws_ec2.yml
+
+#- name: Add Secondary Volume to App Instances
+#  import_tasks: aws_ebs_vol.yml
+#  when: second_volume_type_app != ""
+
+#- name: Creating EIP
+#  import_tasks: aws_eip.yml
+
+#- name: Set up Route Table for Subnets
+#  import_tasks: aws_route_table.yml

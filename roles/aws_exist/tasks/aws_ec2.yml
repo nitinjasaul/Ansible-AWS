@@ -1,0 +1,84 @@
+---
+
+- name: Creating NAT Instance in Public Subnet
+  ec2:
+    key_name: "{{ key_name }}"
+    instance_type: "{{ instance_type_nat }}"
+    image: "{{ image_nat }}"
+    group: "{{ nat_sg_name }}"
+    count: "{{ count_instance_nat }}"
+    region: "{{ aws_region }}"
+    vpc_subnet_id: "{{ item }}"
+    source_dest_check: false
+    user_data: "{{ lookup('file', 'key.sh') }}"
+    volumes: 
+      - device_name: /dev/xvda
+        volume_type: standard
+        volume_size: 8
+        delete_on_termination: yes
+    state: present
+    instance_tags: { "Name":"NAT-Instance", "Environment":"{{ ENVIRONMENT }}" }
+    wait: yes
+  with_items: "{{ subnet_ids }}"
+  #ignore_errors: yes
+  when: count_instance_nat != 0 
+  register: ec2
+
+- ec2_instance_facts:
+    filters:
+      "tag:Name": NAT-Instance
+  register: ec2_nat
+
+- name: Creating Test Instance in Private Subnet
+  ec2:
+    key_name: "{{ key_name }}"
+    instance_type: "{{ instance_type_app }}"
+    image: "{{ image_app }}"
+    group: "{{ app_sg_name }}"
+    count: "{{ count_instance_app }}"
+    region: "{{ aws_region }}"
+    vpc_subnet_id: "{{ item }}"
+    volumes: 
+      - device_name: /dev/xvda
+        volume_type: "{{ default_volume_type_app }}"
+        volume_size: "{{ volume_size_app }}"
+        delete_on_termination: yes
+    state: present
+    instance_tags: { "Name":"{{ App_Instance_Name }}", "Environment":"{{ ENVIRONMENT }}" }
+    wait: yes
+  with_items: "{{ subnet_ids_pvt }}"
+  register: ec2_app
+
+- name: IP Mil Jaaaaaaaaaaaaaaaaaa
+  set_fact:
+    app_item: "{{ item.instances }}"
+  with_items: "{{ ec2_app.results }}"
+  register: app_result
+
+- name: Something Ajeeb
+  set_fact:
+    app: "{{ app_result.results | map(attribute='ansible_facts.app_item') | list }}"
+
+- name: test
+  set_fact:
+    instance_ip: "{{ instance_ip }} + [ '{{ item.private_ip }}' ]"
+  with_items: "{{ app }}"
+
+- debug: var=instance_ip
+
+- ec2_instance_facts:
+    filters:
+      "tag:Name": "{{ App_Instance_Name }}"
+  register: ec2_list
+
+#- ec2_instance_facts:
+##    filters:
+##      "launch_time": 2018-03
+#  register: ec2_created
+
+- name: Storing IPs of Instances into a Host File
+  lineinfile:
+    dest: "./hosts"
+    regexp: "{{ instance_ip }}"
+    insertafter: "[webserver]" 
+    line: "{{ instance_ip }}"

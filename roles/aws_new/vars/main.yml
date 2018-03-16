@@ -1,0 +1,65 @@
+---
+
+# vars file for aws_vpc
+
+ENVIRONMENT: "Dev"		# Environment for tagging i.e Production or Stage
+subnet_ids: []			# Array to store Public Subnet Ids
+subnet_ids_pvt: []		# Array to store Private Subnet Ids
+
+vpc_name: "myvpc"		# Desired name for the New VPC
+cidr_vpc: "192.168.0.0/16"	# CIDR value for the VPC
+aws_region: "us-east-1"		# Region for the 
+key_name: "id_rsa"		# Desired key name 
+
+cidr_subnet1: "192.168.1.0/24"	# CIDR value for the Subnet1
+cidr_subnet2: "192.168.2.0/24"	# CIDR value for the Subnet2
+cidr_subnet3: "192.168.3.0/24"	# CIDR value for the Subnet3
+
+az_subnet1: "us-east-1a"	# Availability Zone for the Subnet1
+az_subnet2: "us-east-1b"	# Availability Zone for the Subnet2
+az_subnet3: "us-east-1c"	# Availability Zone for the Subnet3
+
+
+vpc_subnets:
+  - cidr: "{{ cidr_subnet1 }}" # Public Subnet-1
+    az: "{{ az_subnet1 }}"
+    resource_tags: { "Name":"{{ vpc_name }}-subnet-pub", "Type":"Public", "Alias":"Subnet_1" }
+    register: subnet1
+
+  - cidr: "{{ cidr_subnet2 }}" # Private Subnet-2
+    az: "{{ az_subnet2 }}"
+    resource_tags: { "Name":"{{ vpc_name }}-subnet-pvt", "Type":"Private", "Alias":"Subnet_2" }
+    register: subnet2
+
+#  - cidr: "{{ cidr_subnet3 }}" # Private Subnet-3
+#    az: "{{ az_subnet3 }}"
+#    resource_tags: { "Name":"{{ vpc_name }}-subnet-3", "Type":"Private", "Alias":"Subnet_3" }
+#    register: subnet3
+#    state: absent
+
+##### Variable for NAT Instance #####
+
+image_nat: "ami-311a1a5b"	# AWS NAT Image or AMI from which user wants to create the NAT Instance
+instance_type_nat: "t2.micro"	# Instance type for NAT Instance
+nat_sg_name: "NAT_SG"		# Desired name for the NAT Security Group
+count_instance_nat: "1"		# Put value 0 if user don't want to create the NAT Instance
+
+##### Variable for Application Instance #####
+
+image_app: "ami-97785bed"	# AWS Instance Image or AMI from which user wants to create the Instance for Applications
+instance_type_app: "t2.micro"	# Instance type for Application Instance
+app_sg_name: "Test_SG"		# Desired name for Application Security Group
+count_instance_app: "1"		# # Number of Instances for Application
+volume_size_app: "8"            # Primary volume size for the Application Instance
+default_volume_type_app: "standard"     # Primary volume type for the Application Instance i.e "standard" or "gp2"
+second_volume_size_app: "50"    # Secondary volume size for the Application Instance
+second_volume_type_app: ""      # Secondary volume type for the Application Instance i.e "standard" or "gp2" 
+App_Instance_Name: "App-Instance"	# Desired name for the Application Instances
+
+
+
+# Note: 
+
+# 1. Put 0 for if you don't want to create NAT Instance i.e count_instance_nat: "0"  OR  Put 1 to create NAT Instance i.e count_instance_nat: "1"
+# 2. Leave secondary volume type null if you don't want to add the secondary volume i.e second_volume_type_app: ""
+# 3. The type of the subnets must be Public or Private i.e "Type":"Public" or "Type":"Private"

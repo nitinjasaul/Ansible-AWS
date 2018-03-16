@@ -1,0 +1,12 @@
+---
+
+- name: Creating Instances
+  import_tasks: aws_ec2.yml
+
+- name: Attach Public IP to NAT Instance
+  import_tasks: aws_eip.yml
+  when: ec2.changed
+
+- name: Add Secondary Volume to App Instances
+  import_tasks: aws_ebs_vol.yml
+  when: second_volume_type_app != ""

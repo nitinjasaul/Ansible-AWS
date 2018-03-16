@@ -1,0 +1,40 @@
+---
+# tasks file for aws_vpc
+- name: Creating New VPC on AWS
+  ec2_vpc:
+    cidr_block: "{{ cidr_vpc }}"
+    region: "{{ aws_region }}"
+    wait: yes
+    resource_tags: { "Name":"{{ vpc_name }}", "Environment":"{{ ENVIRONMENT }}" }
+    subnets: "{{ vpc_subnets }}" 
+    internet_gateway: True
+    state: present
+  register: vpc
+
+- name: Tag Internet Gateway
+  ec2_tag:
+    resource: "{{ vpc.igw_id }}"
+    region: "{{ aws_region }}"
+    tags:
+      Name: "{{ vpc_name }}-igw"
+    state: present
+  register: igw
+
+- name: Get subnet details
+  ec2_vpc_subnet_facts:
+    region: "{{ aws_region }}"
+    filters:
+      vpc-id: "{{ vpc.vpc_id }}"
+  register: subnet_facts
+
+- name: Fetching Public Subnet Ids
+  set_fact:
+    subnet_ids: "{{ subnet_ids }} + [ '{{ item.id }}' ]"
+  with_items: "{{ subnet_facts.subnets }}"
+  when: "'Public' in item.tags.Type" 
+
+- name: Fetching Private Subnet Ids
+  set_fact:
+    subnet_ids_pvt: "{{ subnet_ids_pvt }} + [ '{{ item.id }}' ]"
+  with_items: "{{ subnet_facts.subnets }}"
+  when: "'Private' in item.tags.Type" 

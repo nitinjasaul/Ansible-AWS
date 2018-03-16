@@ -1,0 +1,9 @@
+---
+
+- hosts: localhost
+#  remote_user: vagrant
+  gather_facts: false
+  roles:
+    - { role: 'aws_exist', tags: 'aws_exist' }
+    - { role: 'aws_new', tags: 'aws_new' }
+#    - { role: azure, tags: azure }

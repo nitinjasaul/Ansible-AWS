@@ -1,0 +1,11 @@
+--- 
+
+- name: Attaching Secondary Volume to App Instances
+  ec2_vol:
+    instance: "{{ item.instance_id }}" 
+    region: "{{ aws_region }}"
+    device_name: /dev/sdf
+    volume_size: "{{ second_volume_size_app }}"
+    volume_type: "{{ second_volume_type_app }}"
+    delete_on_termination: yes
+  with_items: "{{ ec2_list.instances }}"
